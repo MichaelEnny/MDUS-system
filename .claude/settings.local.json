@@ -37,7 +37,9 @@
       "Read(/C:\\Users\\wisdo\\OneDrive\\Desktop\\Data-Science-ML\\MDUS-system\\ai-service/**)",
       "Read(/C:\\Users\\wisdo\\OneDrive\\Desktop\\Data-Science-ML\\MDUS-system\\web-frontend\\src/**)",
       "Read(/C:\\Users\\wisdo\\OneDrive\\Desktop\\Data-Science-ML\\MDUS-system/**)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
