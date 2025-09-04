@@ -1,0 +1,196 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database with Enhanced Configuration
+  postgres:
+    image: postgres:15-alpine
+    container_name: mdus_postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-mdus_db}
+      POSTGRES_USER: ${POSTGRES_USER:-mdus_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mdus_password}
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+      PGUSER: ${POSTGRES_USER:-mdus_user}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+      - ./database/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ./database/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+      - postgres_logs:/var/log/postgresql
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    networks:
+      - mdus_network
+    command: >
+      postgres 
+      -c config_file=/etc/postgresql/postgresql.conf
+      -c hba_file=/etc/postgresql/pg_hba.conf
+      -c log_statement=all
+      -c log_directory=/var/log/postgresql
+      -c logging_collector=on
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mdus_user} -d ${POSTGRES_DB:-mdus_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+        reservations:
+          memory: 1G
+          cpus: '1.0'
+    restart: unless-stopped
+
+  # Redis Cache and Queue
+  redis:
+    image: redis:7-alpine
+    container_name: mdus_redis
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_password}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - mdus_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # AI Processing Service
+  ai_service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    container_name: mdus_ai_service
+    environment:
+      - POSTGRES_URL=postgresql://${POSTGRES_USER:-mdus_user}:${POSTGRES_PASSWORD:-mdus_password}@postgres:5432/${POSTGRES_DB:-mdus_db}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis_password}@redis:6379/0
+      - MODEL_CACHE_DIR=/app/models
+      - PYTHONPATH=/app
+    volumes:
+      - ./ai-service:/app
+      - ai_models:/app/models
+      - ai_uploads:/app/uploads
+    ports:
+      - "${AI_SERVICE_PORT:-8001}:8000"
+    networks:
+      - mdus_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+
+  # API Backend Service
+  api_backend:
+    build:
+      context: ./api-backend
+      dockerfile: Dockerfile
+    container_name: mdus_api_backend
+    environment:
+      - POSTGRES_URL=postgresql://${POSTGRES_USER:-mdus_user}:${POSTGRES_PASSWORD:-mdus_password}@postgres:5432/${POSTGRES_DB:-mdus_db}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis_password}@redis:6379/0
+      - AI_SERVICE_URL=http://ai_service:8000
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_key_here}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,http://localhost:8080}
+    volumes:
+      - ./api-backend:/app
+      - api_uploads:/app/uploads
+      - processed_files:/app/processed
+      - temp_uploads:/app/temp
+      - archive_storage:/app/archive
+    ports:
+      - "${API_PORT:-8000}:8000"
+    networks:
+      - mdus_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ai_service:
+        condition: service_started
+    restart: unless-stopped
+
+  # Web Frontend
+  web_frontend:
+    build:
+      context: ./web-frontend
+      dockerfile: Dockerfile
+      target: ${NODE_ENV:-development}
+    container_name: mdus_web_frontend
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - REACT_APP_API_URL=${REACT_APP_API_URL:-http://localhost:8000}
+      - REACT_APP_WEBSOCKET_URL=${REACT_APP_WEBSOCKET_URL:-ws://localhost:8000}
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - ./web-frontend:/app
+      - /app/node_modules
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    networks:
+      - mdus_network
+    depends_on:
+      - api_backend
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+
+  # Nginx Reverse Proxy (for production)
+  nginx:
+    image: nginx:alpine
+    container_name: mdus_nginx
+    ports:
+      - "${NGINX_PORT:-80}:80"
+      - "${NGINX_SSL_PORT:-443}:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/ssl/certs
+    networks:
+      - mdus_network
+    depends_on:
+      - api_backend
+      - web_frontend
+    restart: unless-stopped
+    profiles:
+      - production
+
+volumes:
+  postgres_data:
+    driver: local
+  postgres_logs:
+    driver: local
+  redis_data:
+    driver: local
+  ai_models:
+    driver: local
+  ai_uploads:
+    driver: local
+  api_uploads:
+    driver: local
+  processed_files:
+    driver: local
+  temp_uploads:
+    driver: local
+  archive_storage:
+    driver: local
+
+networks:
+  mdus_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

@@ -1,0 +1,43 @@
+version: '3.8'
+
+# Development overrides for docker-compose.yml
+services:
+  ai_service:
+    build:
+      target: development
+    volumes:
+      - ./ai-service:/app
+      - ai_models:/app/models
+    environment:
+      - DEBUG=True
+      - RELOAD=True
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--log-level", "debug"]
+
+  api_backend:
+    build:
+      target: development
+    volumes:
+      - ./api-backend:/app
+    environment:
+      - DEBUG=True
+      - RELOAD=True
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--log-level", "debug"]
+
+  web_frontend:
+    build:
+      target: development
+    volumes:
+      - ./web-frontend:/app
+      - /app/node_modules
+    environment:
+      - FAST_REFRESH=false
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+
+  postgres:
+    ports:
+      - "5432:5432"  # Expose for direct DB access in development
+
+  redis:
+    ports:
+      - "6379:6379"  # Expose for direct Redis access in development
