@@ -1,4 +1,5 @@
-FROM python:3.11-slim
+# Development stage
+FROM python:3.11-slim as development
 
 # Set working directory
 WORKDIR /app
@@ -37,5 +38,11 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Start command - use the system runner for full functionality
+# Development command with hot reload
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--log-level", "debug"]
+
+# Production stage
+FROM development as production
+
+# Production command
 CMD ["python", "run_system.py", "api"]

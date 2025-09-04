@@ -1,4 +1,5 @@
-FROM python:3.11-slim
+# Development stage
+FROM python:3.11-slim as development
 
 # Set working directory
 WORKDIR /app
@@ -7,15 +8,12 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
-    software-properties-common \
     git \
-    libgl1-mesa-glx \
     libglib2.0-0 \
     libsm6 \
     libxext6 \
     libxrender-dev \
     libgomp1 \
-    libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
 # Create necessary directories
@@ -46,5 +44,11 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Start command
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Development command with hot reload
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--log-level", "debug"]
+
+# Production stage
+FROM development as production
+
+# Production command - no reload
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

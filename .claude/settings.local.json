@@ -39,7 +39,12 @@
       "Read(/C:\\Users\\wisdo\\OneDrive\\Desktop\\Data-Science-ML\\MDUS-system/**)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Read(/C:\\Users\\wisdo\\OneDrive\\Desktop\\Data-Science-ML\\MDUS-system/**)",
+      "Read(/C:\\Users\\wisdo\\OneDrive\\Desktop\\Data-Science-ML\\MDUS-system\\api-backend/**)",
+      "Read(/C:\\Users\\wisdo\\OneDrive\\Desktop\\Data-Science-ML\\MDUS-system/**)",
+      "Read(/C:\\Users\\wisdo\\OneDrive\\Desktop\\Data-Science-ML\\MDUS-system\\web-frontend/**)",
+      "Bash(docker system prune:*)"
     ],
     "deny": [],
     "ask": []
