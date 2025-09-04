@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '@/services/api';
-import { UploadedFile, DocumentUploadResponse, ApiError } from '@/types/document';
-import { validateFile, generateFileId } from '@/utils/file';
+import { apiClient } from '../services/api';
+import { UploadedFile, DocumentUploadResponse, ApiError } from '../types/document';
+import { validateFile, generateFileId } from '../utils/file';
 import toast from 'react-hot-toast';
 
 interface UploadProgress {

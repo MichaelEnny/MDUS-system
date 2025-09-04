@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
-import Layout from '@/components/layout/Layout';
-import FileUpload from '@/components/upload/FileUpload';
-import DocumentList from '@/components/results/DocumentList';
-import DocumentViewer from '@/components/results/DocumentViewer';
-import ErrorBoundary from '@/components/ui/ErrorBoundary';
-import { useWebSocket } from '@/hooks/useWebSocket';
+import Layout from './components/layout/Layout';
+import FileUpload from './components/upload/FileUpload';
+import DocumentList from './components/results/DocumentList';
+import DocumentViewer from './components/results/DocumentViewer';
+import ErrorBoundary from './components/ui/ErrorBoundary';
+import { useWebSocket } from './hooks/useWebSocket';
 
 // Create a client
 const queryClient = new QueryClient({

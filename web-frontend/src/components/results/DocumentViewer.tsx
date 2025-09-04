@@ -10,11 +10,11 @@ import {
 } from '@heroicons/react/24/outline';
 import { CheckCircleIcon, ExclamationTriangleIcon, XCircleIcon } from '@heroicons/react/24/solid';
 import { clsx } from 'clsx';
-import Button from '@/components/ui/Button';
-import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
-import { apiClient } from '@/services/api';
-import { DocumentAnalysis, ProcessingStatus } from '@/types/document';
-import { formatDate, formatRelativeTime, formatConfidence } from '@/utils/format';
+import Button from '../ui/Button';
+import LoadingSkeleton from '../ui/LoadingSkeleton';
+import { apiClient } from '../../services/api';
+import { DocumentAnalysis, ProcessingStatus } from '../../types/document';
+import { formatDate, formatRelativeTime, formatConfidence } from '../../utils/format';
 
 interface DocumentViewerProps {
   documentId: string;
@@ -101,7 +101,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ documentId, onClose }) 
           Failed to load document analysis
         </h3>
         <p className="text-sm text-gray-600 mb-4">
-          {analysisError?.message || 'An error occurred while loading the document.'}
+          {(analysisError as any)?.message || 'An error occurred while loading the document.'}
         </p>
         {onClose && (
           <Button variant="outline" onClick={onClose}>
@@ -273,7 +273,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ documentId, onClose }) 
                 {Object.entries(
                   analysis.entities.reduce((acc, entity) => {
                     if (!acc[entity.label]) acc[entity.label] = [];
-                    acc[entity.label].push(entity);
+                    acc[entity.label]!.push(entity);
                     return acc;
                   }, {} as Record<string, typeof analysis.entities>)
                 ).map(([label, entities]) => (

@@ -44,7 +44,21 @@
       "Read(/C:\\Users\\wisdo\\OneDrive\\Desktop\\Data-Science-ML\\MDUS-system\\api-backend/**)",
       "Read(/C:\\Users\\wisdo\\OneDrive\\Desktop\\Data-Science-ML\\MDUS-system/**)",
       "Read(/C:\\Users\\wisdo\\OneDrive\\Desktop\\Data-Science-ML\\MDUS-system\\web-frontend/**)",
-      "Bash(docker system prune:*)"
+      "Bash(docker system prune:*)",
+      "Read(/C:\\Users\\wisdo\\OneDrive\\Desktop\\Data-Science-ML\\MDUS-system\\database/**)",
+      "Bash(docker volume rm:*)",
+      "Read(/C:\\Users\\wisdo\\OneDrive\\Desktop\\Data-Science-ML\\MDUS-system/**)",
+      "Read(/C:\\Users\\wisdo\\OneDrive\\Desktop\\Data-Science-ML\\MDUS-system\\api-backend\\app\\core/**)",
+      "Read(/C:\\Users\\wisdo\\OneDrive\\Desktop\\Data-Science-ML\\MDUS-system\\ai-service/**)",
+      "Read(/C:\\Users\\wisdo\\OneDrive\\Desktop\\Data-Science-ML\\MDUS-system\\ai-service/**)",
+      "Read(/C:\\Users\\wisdo\\OneDrive\\Desktop\\Data-Science-ML\\MDUS-system\\ai-service\\models/**)",
+      "Read(/C:\\Users\\wisdo\\OneDrive\\Desktop\\Data-Science-ML\\MDUS-system/**)",
+      "Bash(docker exec:*)",
+      "Read(/C:\\Users\\wisdo\\OneDrive\\Desktop\\Data-Science-ML\\MDUS-system\\web-frontend\\src/**)",
+      "Read(/C:\\Users\\wisdo\\OneDrive\\Desktop\\Data-Science-ML\\MDUS-system\\web-frontend/**)",
+      "Read(/C:\\Users\\wisdo\\OneDrive\\Desktop\\Data-Science-ML\\MDUS-system\\web-frontend\\src\\components\\results/**)",
+      "Read(/C:\\Users\\wisdo\\OneDrive\\Desktop\\Data-Science-ML\\MDUS-system\\api-backend\\app\\api\\routes/**)",
+      "Read(/C:\\Users\\wisdo\\OneDrive\\Desktop\\Data-Science-ML\\MDUS-system\\api-backend\\app\\api\\routes/**)"
     ],
     "deny": [],
     "ask": []

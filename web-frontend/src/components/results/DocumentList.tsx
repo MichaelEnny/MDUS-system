@@ -7,12 +7,12 @@ import {
   ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
-import Button from '@/components/ui/Button';
-import LoadingSkeleton, { CardSkeleton } from '@/components/ui/LoadingSkeleton';
-import { apiClient } from '@/services/api';
-import { DocumentMetadata } from '@/types/document';
-import { formatDate, formatRelativeTime } from '@/utils/format';
-import { formatFileSize } from '@/utils/file';
+import Button from '../ui/Button';
+import LoadingSkeleton, { CardSkeleton } from '../ui/LoadingSkeleton';
+import { apiClient } from '../../services/api';
+import { DocumentMetadata } from '../../types/document';
+import { formatDate, formatRelativeTime } from '../../utils/format';
+import { formatFileSize } from '../../utils/file';
 import toast from 'react-hot-toast';
 
 interface DocumentListProps {
@@ -48,8 +48,8 @@ const DocumentList: React.FC<DocumentListProps> = ({
       queryClient.invalidateQueries({ queryKey: ['documents'] });
       toast.success('Document deleted successfully');
     },
-    onError: (error) => {
-      toast.error(`Failed to delete document: ${error.message}`);
+    onError: (error: any) => {
+      toast.error(`Failed to delete document: ${error?.message || 'Unknown error occurred'}`);
     },
   });
 
@@ -94,7 +94,7 @@ const DocumentList: React.FC<DocumentListProps> = ({
           Failed to load documents
         </h3>
         <p className="text-sm text-gray-600">
-          {error?.message || 'An error occurred while loading documents.'}
+          {(error as any)?.message || 'An error occurred while loading documents.'}
         </p>
       </div>
     );
@@ -250,7 +250,7 @@ const DocumentList: React.FC<DocumentListProps> = ({
                 
                 {/* Page Numbers */}
                 {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                  let pageNumber;
+                  let pageNumber: number;
                   if (totalPages <= 5) {
                     pageNumber = i + 1;
                   } else if (currentPage <= 3) {

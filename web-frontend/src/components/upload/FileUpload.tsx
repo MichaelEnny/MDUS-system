@@ -3,10 +3,10 @@ import { useDropzone } from 'react-dropzone';
 import { DocumentArrowUpIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import { clsx } from 'clsx';
-import Button from '@/components/ui/Button';
-import ProgressBar from '@/components/ui/ProgressBar';
-import { useDocumentUpload } from '@/hooks/useDocumentUpload';
-import { formatFileSize, ACCEPTED_FILE_TYPES, MAX_FILES } from '@/utils/file';
+import Button from '../ui/Button';
+import ProgressBar from '../ui/ProgressBar';
+import { useDocumentUpload } from '../../hooks/useDocumentUpload';
+import { formatFileSize, ACCEPTED_FILE_TYPES, MAX_FILES } from '../../utils/file';
 
 const FileUpload: React.FC = () => {
   const [dragActive, setDragActive] = useState(false);

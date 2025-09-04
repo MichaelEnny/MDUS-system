@@ -3,8 +3,9 @@ Core configuration for MDUS API Backend
 """
 
 import os
-from typing import List
-from pydantic import BaseSettings, Field, validator
+from typing import List, Optional
+from pydantic import Field, field_validator
+from pydantic_settings import BaseSettings
 from functools import lru_cache
 
 class Settings(BaseSettings):
@@ -25,10 +26,7 @@ class Settings(BaseSettings):
     jwt_expiration_hours: int = Field(24, env="JWT_EXPIRATION_HOURS")
     
     # CORS settings
-    cors_origins: List[str] = Field(
-        ["http://localhost:3000", "http://localhost:8080"],
-        env="CORS_ORIGINS"
-    )
+    cors_origins: List[str] = ["http://localhost:3000", "http://localhost:8080"]
     
     # File storage settings
     upload_dir: str = Field("/app/uploads", env="UPLOAD_DIR")
@@ -37,15 +35,18 @@ class Settings(BaseSettings):
     archive_dir: str = Field("/app/archive", env="ARCHIVE_DIR")
     
     max_file_size: int = Field(100 * 1024 * 1024, env="MAX_FILE_SIZE")  # 100MB
-    allowed_file_types: List[str] = Field([
-        "application/pdf",
-        "image/jpeg", 
-        "image/png",
-        "image/tiff",
-        "text/plain",
-        "application/msword",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    ], env="ALLOWED_FILE_TYPES")
+    allowed_file_types: List[str] = Field(
+        default=[
+            "application/pdf",
+            "image/jpeg", 
+            "image/png",
+            "image/tiff",
+            "text/plain",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ], 
+        env="ALLOWED_FILE_TYPES"
+    )
     
     # Processing settings
     max_concurrent_jobs: int = Field(5, env="MAX_CONCURRENT_JOBS")
@@ -64,25 +65,40 @@ class Settings(BaseSettings):
     enable_metrics: bool = Field(True, env="ENABLE_METRICS")
     metrics_port: int = Field(9090, env="METRICS_PORT")
     
-    @validator("cors_origins", pre=True)
-    def assemble_cors_origins(cls, v):
-        if isinstance(v, str) and "," in v:
-            return [i.strip() for i in v.split(",")]
-        elif isinstance(v, str):
-            return [v]
-        return v
-    
-    @validator("allowed_file_types", pre=True)
+    @field_validator("allowed_file_types", mode="before")
+    @classmethod
     def assemble_file_types(cls, v):
-        if isinstance(v, str) and "," in v:
-            return [i.strip() for i in v.split(",")]
-        elif isinstance(v, str):
-            return [v]
-        return v
+        if v is None:
+            return [
+                "application/pdf",
+                "image/jpeg", 
+                "image/png",
+                "image/tiff",
+                "text/plain",
+                "application/msword",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            ]
+        if isinstance(v, str):
+            if "," in v:
+                return [i.strip() for i in v.split(",") if i.strip()]
+            else:
+                return [v.strip()] if v.strip() else []
+        if isinstance(v, list):
+            return v
+        return [
+            "application/pdf",
+            "image/jpeg", 
+            "image/png",
+            "image/tiff",
+            "text/plain",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ]
     
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
+    model_config = {
+        "env_file": ".env",
+        "case_sensitive": False
+    }
 
 @lru_cache()
 def get_settings() -> Settings:

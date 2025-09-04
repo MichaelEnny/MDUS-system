@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
-import { wsClient } from '@/services/api';
+import { wsClient } from '../services/api';
 
 interface UseWebSocketReturn {
   isConnected: boolean;
